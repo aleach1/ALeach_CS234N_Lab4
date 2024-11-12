@@ -45,7 +45,7 @@ namespace MMABooksTests
         public void GetUsingWhere()
         {
             // get a list of all of the products that have a unit price of 56.50
-            products = dbContext.Products.Where(p => p.UnitPrice.Equals(56.5)).OrderBy(p => p.ProductCode).ToList();
+            products = dbContext.Products.Where(p => p.UnitPrice.Equals(56.50)).OrderBy(p => p.ProductCode).ToList();
             Assert.AreEqual(7, products.Count);
             Assert.AreEqual("A4CS", products[0].ProductCode);
             PrintAll(products);
@@ -68,8 +68,8 @@ namespace MMABooksTests
         [Test]
         public void DeleteTest()
         {
+            
             p = dbContext.Products.Find("A4CS");
-            p.Invoicelineitems.Clear();
             dbContext.Products.Remove(p);
             dbContext.SaveChanges();
             Assert.IsNull(dbContext.States.Find("A4CS"));
