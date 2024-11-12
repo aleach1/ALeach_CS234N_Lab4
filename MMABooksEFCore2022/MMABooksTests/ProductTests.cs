@@ -3,16 +3,18 @@ using System.Linq;
 using System;
 
 using NUnit.Framework;
-using MMABooksEFClasses.MarisModels;
 using Microsoft.EntityFrameworkCore;
+using MMABooksEFClasses.MODELS;
 
 namespace MMABooksTests
 {
     [TestFixture]
     public class ProductTests
     {
-        /*
+        
         MMABooksContext dbContext;
+        Product? p;
+        List<Product>? products;
 
         [SetUp]
         public void Setup()
@@ -24,17 +26,29 @@ namespace MMABooksTests
         [Test]
         public void GetAllTest()
         {
+            products = dbContext.Products.OrderBy(p => p.ProductCode).ToList();
+            Assert.AreEqual(16, products.Count);
+            Assert.AreEqual("A4CS", products[0].ProductCode);
+            PrintAll(products);
         }
 
         [Test]
         public void GetByPrimaryKeyTest()
         {
+            p = dbContext.Products.Find("A4CS");
+            Assert.IsNotNull(p);
+            Assert.AreEqual("Murach''s ASP.NET 4 Web Programming with C# 2010", p.Description);
+            Console.WriteLine(p);
         }
 
         [Test]
         public void GetUsingWhere()
         {
             // get a list of all of the products that have a unit price of 56.50
+            products = dbContext.Products.Where(p => p.UnitPrice.Equals(56.50)).OrderBy(p => p.ProductCode).ToList();
+            Assert.AreEqual(7, products.Count);
+            Assert.AreEqual("A4CS", products[0].ProductCode);
+            PrintAll(products);
         }
 
         [Test]
@@ -50,24 +64,31 @@ namespace MMABooksTests
                 Console.WriteLine(p);
             }
         }
+        
+                [Test]
+                public void DeleteTest()
+                {
 
-        [Test]
-        public void DeleteTest()
+                }
+
+                [Test]
+                public void CreateTest()
+                {
+
+                }
+
+                [Test]
+                public void UpdateTest()
+                {
+
+                }
+               
+        public void PrintAll(List<Product> customers)
         {
-
+            foreach (Product p in products)
+            {
+                Console.WriteLine(p);
+            }
         }
-
-        [Test]
-        public void CreateTest()
-        {
-
-        }
-
-        [Test]
-        public void UpdateTest()
-        {
-
-        }
-       */
     }
 }
