@@ -5,13 +5,13 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace MMABooksEFClasses.MODELS
 {
-    public partial class MMABOOKSCONTEXT : DbContext
+    public partial class MMABooksContext : DbContext
     {
-        public MMABOOKSCONTEXT()
+        public MMABooksContext()
         {
         }
 
-        public MMABOOKSCONTEXT(DbContextOptions<MMABOOKSCONTEXT> options)
+        public MMABooksContext(DbContextOptions<MMABooksContext> options)
             : base(options)
         {
         }
@@ -24,10 +24,11 @@ namespace MMABooksEFClasses.MODELS
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            string connectionString = ConfigDB.GetMySqlConnectionString();
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseMySql("server=127.0.0.1;uid=root;pwd=Nickllarcade1;database=MMABOOKS", Microsoft.EntityFrameworkCore.ServerVersion.Parse("9.0.1-mysql"));
+                var serverVersion = new MySqlServerVersion(new Version(9, 0));
+                optionsBuilder.UseMySql(connectionString, serverVersion);
             }
         }
 
