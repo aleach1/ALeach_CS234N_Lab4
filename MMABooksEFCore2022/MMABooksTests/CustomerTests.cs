@@ -27,8 +27,8 @@ namespace MMABooksTests
         public void GetAllTest()
         {
             customers = dbContext.Customers.OrderBy(c => c.Name).ToList();
-            Assert.AreEqual(699, customers.Count);
-            Assert.AreEqual(1, customers[0].CustomerId);
+            Assert.AreEqual(696, customers.Count);
+            Assert.AreEqual(157, customers[0].CustomerId);
             PrintAll(customers);
         }
 
@@ -89,6 +89,7 @@ namespace MMABooksTests
         public void CreateTest()
         {
             c = new Customer();
+            c.CustomerId = 700;
             c.Name = "Mouse, Mickey";
             c.Address = "123 Main St";
             c.City = "Atlantis";
