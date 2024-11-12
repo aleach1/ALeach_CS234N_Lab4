@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace MMABooksEFClasses.MarisModels
+namespace MMABooksEFClasses.MODELS
 {
     public partial class MMABooksContext : DbContext
     {
@@ -15,77 +16,91 @@ namespace MMABooksEFClasses.MarisModels
         {
         }
 
-        public virtual DbSet<Customer> Customers { get; set; }
-        public virtual DbSet<Invoicelineitem> Invoicelineitems { get; set; }
-        public virtual DbSet<Invoice> Invoices { get; set; }
-        public virtual DbSet<Product> Products { get; set; }
-        public virtual DbSet<State> States { get; set; }
+        public virtual DbSet<Customer> Customers { get; set; } = null!;
+        public virtual DbSet<Invoice> Invoices { get; set; } = null!;
+        public virtual DbSet<Invoicelineitem> Invoicelineitems { get; set; } = null!;
+        public virtual DbSet<Product> Products { get; set; } = null!;
+        public virtual DbSet<State> States { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             string connectionString = ConfigDB.GetMySqlConnectionString();
             if (!optionsBuilder.IsConfigured)
             {
-                var serverVersion = new MySqlServerVersion(new Version(8, 0, 28));
+                var serverVersion = new MySqlServerVersion(new Version(9, 0));
                 optionsBuilder.UseMySql(connectionString, serverVersion);
             }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.UseCollation("utf8mb4_0900_ai_ci")
+                .HasCharSet("utf8mb4");
+
             modelBuilder.Entity<Customer>(entity =>
             {
-                entity.HasKey(e => e.CustomerId)
-                    .HasName("PRIMARY");
-
                 entity.ToTable("customers");
 
-                entity.HasIndex(e => e.StateCode)
-                    .HasName("FK_Customers_States");
+                entity.HasIndex(e => e.State, "FK_Customers_States");
 
                 entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
 
-                entity.Property(e => e.Address)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                entity.Property(e => e.Address).HasMaxLength(50);
 
-                entity.Property(e => e.City)
-                    .IsRequired()
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
+                entity.Property(e => e.City).HasMaxLength(20);
 
-                entity.Property(e => e.Name)
-                    .IsRequired()
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                entity.Property(e => e.Name).HasMaxLength(100);
 
-                entity.Property(e => e.StateCode).HasColumnName("State")
-                    .IsRequired()
+                entity.Property(e => e.State)
                     .HasMaxLength(2)
                     .IsFixedLength();
 
                 entity.Property(e => e.ZipCode)
-                    .IsRequired()
                     .HasMaxLength(15)
                     .IsFixedLength();
 
-                entity.HasOne(d => d.State)
+                entity.HasOne(d => d.StateNavigation)
                     .WithMany(p => p.Customers)
-                    .HasForeignKey(d => d.StateCode)
+                    .HasForeignKey(d => d.State)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Customers_States");
+            });
+
+            modelBuilder.Entity<Invoice>(entity =>
+            {
+                entity.ToTable("invoices");
+
+                entity.HasIndex(e => e.CustomerId, "FK_Invoices_Customers");
+
+                entity.Property(e => e.InvoiceId).HasColumnName("InvoiceID");
+
+                entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
+
+                entity.Property(e => e.InvoiceDate).HasColumnType("datetime");
+
+                entity.Property(e => e.InvoiceTotal).HasPrecision(10, 4);
+
+                entity.Property(e => e.ProductTotal).HasPrecision(10, 4);
+
+                entity.Property(e => e.SalesTax).HasPrecision(10, 4);
+
+                entity.Property(e => e.Shipping).HasPrecision(10, 4);
+
+                entity.HasOne(d => d.Customer)
+                    .WithMany(p => p.Invoices)
+                    .HasForeignKey(d => d.CustomerId)
+                    .HasConstraintName("FK_Invoices_Customers");
             });
 
             modelBuilder.Entity<Invoicelineitem>(entity =>
             {
                 entity.HasKey(e => new { e.InvoiceId, e.ProductCode })
-                    .HasName("PRIMARY");
+                    .HasName("PRIMARY")
+                    .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0 });
 
                 entity.ToTable("invoicelineitems");
 
-                entity.HasIndex(e => e.ProductCode)
-                    .HasName("FK_InvoiceLineItems_Products");
+                entity.HasIndex(e => e.ProductCode, "FK_InvoiceLineItems_Products");
 
                 entity.Property(e => e.InvoiceId).HasColumnName("InvoiceID");
 
@@ -93,9 +108,9 @@ namespace MMABooksEFClasses.MarisModels
                     .HasMaxLength(10)
                     .IsFixedLength();
 
-                entity.Property(e => e.ItemTotal).HasColumnType("decimal(10,4)");
+                entity.Property(e => e.ItemTotal).HasPrecision(10, 4);
 
-                entity.Property(e => e.UnitPrice).HasColumnType("decimal(10,4)");
+                entity.Property(e => e.UnitPrice).HasPrecision(10, 4);
 
                 entity.HasOne(d => d.Invoice)
                     .WithMany(p => p.Invoicelineitems)
@@ -109,34 +124,6 @@ namespace MMABooksEFClasses.MarisModels
                     .HasConstraintName("FK_InvoiceLineItems_Products");
             });
 
-            modelBuilder.Entity<Invoice>(entity =>
-            {
-                entity.HasKey(e => e.InvoiceId)
-                    .HasName("PRIMARY");
-
-                entity.ToTable("invoices");
-
-                entity.HasIndex(e => e.CustomerId)
-                    .HasName("FK_Invoices_Customers");
-
-                entity.Property(e => e.InvoiceId).HasColumnName("InvoiceID");
-
-                entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
-
-                entity.Property(e => e.InvoiceTotal).HasColumnType("decimal(10,4)");
-
-                entity.Property(e => e.ProductTotal).HasColumnType("decimal(10,4)");
-
-                entity.Property(e => e.SalesTax).HasColumnType("decimal(10,4)");
-
-                entity.Property(e => e.Shipping).HasColumnType("decimal(10,4)");
-
-                entity.HasOne(d => d.Customer)
-                    .WithMany(p => p.Invoices)
-                    .HasForeignKey(d => d.CustomerId)
-                    .HasConstraintName("FK_Invoices_Customers");
-            });
-
             modelBuilder.Entity<Product>(entity =>
             {
                 entity.HasKey(e => e.ProductCode)
@@ -148,12 +135,9 @@ namespace MMABooksEFClasses.MarisModels
                     .HasMaxLength(10)
                     .IsFixedLength();
 
-                entity.Property(e => e.Description)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                entity.Property(e => e.Description).HasMaxLength(50);
 
-                entity.Property(e => e.UnitPrice).HasColumnType("decimal(10,4)");
+                entity.Property(e => e.UnitPrice).HasPrecision(10, 4);
             });
 
             modelBuilder.Entity<State>(entity =>
@@ -167,10 +151,7 @@ namespace MMABooksEFClasses.MarisModels
                     .HasMaxLength(2)
                     .IsFixedLength();
 
-                entity.Property(e => e.StateName)
-                    .IsRequired()
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
+                entity.Property(e => e.StateName).HasMaxLength(20);
             });
 
             OnModelCreatingPartial(modelBuilder);

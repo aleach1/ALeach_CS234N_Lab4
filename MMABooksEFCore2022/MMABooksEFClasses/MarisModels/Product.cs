@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace MMABooksEFClasses.MarisModels
 {
-    public partial class Products
+    public partial class Product
     {
-        public Products()
+        public Product()
         {
-            Invoicelineitems = new HashSet<Invoicelineitems>();
+            Invoicelineitems = new HashSet<Invoicelineitem>();
         }
 
         public string ProductCode { get; set; }
@@ -15,6 +15,6 @@ namespace MMABooksEFClasses.MarisModels
         public decimal UnitPrice { get; set; }
         public int OnHandQuantity { get; set; }
 
-        public virtual ICollection<Invoicelineitems> Invoicelineitems { get; set; }
+        public virtual ICollection<Invoicelineitem> Invoicelineitems { get; set; }
     }
 }
