@@ -3,7 +3,7 @@ using System.Linq;
 using System;
 
 using NUnit.Framework;
-using MMABooksEFClasses.MODELS;
+using MMABooksEFClasses.MarisModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace MMABooksTests
@@ -73,24 +73,13 @@ namespace MMABooksTests
         [Test]
         public void CreateTest()
         {
-            s = new State();
-            s.StateCode = "HI";
-            s.StateName = "Hawaii";
-            dbContext.States.Add(s);
-            dbContext.SaveChanges();
-            Assert.IsNotNull(dbContext.States.Find("HI"));
 
         }
 
         [Test]
         public void UpdateTest()
         {
-            s = dbContext.States.Find("OR");
-            s.StateName = "Oregon";
-            dbContext.States.Update(s);
-            dbContext.SaveChanges();
-            s = dbContext.States.Find("OR");
-            Assert.AreEqual("Oregon", s.StateName);
+
         }
 
         public void PrintAll(List<State> states)

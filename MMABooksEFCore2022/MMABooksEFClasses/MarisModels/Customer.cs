@@ -7,7 +7,7 @@ namespace MMABooksEFClasses.MarisModels
     {
         public Customer()
         {
-            Invoices = new HashSet<Invoice>();
+            Invoices = new HashSet<Invoices>();
         }
 
         public int CustomerId { get; set; }
@@ -23,6 +23,6 @@ namespace MMABooksEFClasses.MarisModels
         }
 
         public virtual State State { get; set; }
-        public virtual ICollection<Invoice> Invoices { get; set; }
+        public virtual ICollection<Invoices> Invoices { get; set; }
     }
 }
